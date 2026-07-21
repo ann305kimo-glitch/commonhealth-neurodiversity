@@ -39,9 +39,12 @@ const progress = document.querySelector('.progress');
       entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
     }, { threshold: 0.12 });
     revealItems.forEach((item) => observer.observe(item));
-    /* 統計數字：捲到該區塊時由 0 遞增至目標值（只跑一次） */
+    /* 統計數字：捲到該區塊時由 0 遞增至目標值（只跑一次）。
+       設計原則：數字「預設維持正確最終值」，只有真正要播動畫時才歸零遞增 —— 這樣即使動畫在某些
+       裝置沒跑（不支援、被節流、JS 出錯），使用者看到的仍是正確數字，絕不會卡在 0。
+       FORCE_ANIMATE=true 時連「減少動態效果」的裝置也一律播放。 */
     (function initStatCountUp() {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const FORCE_ANIMATE = true; /* 一律播放動畫（含開啟「減少動態」的裝置）；改 false 則尊重系統設定 */
       const targets = [];
       document.querySelectorAll('.stat-number').forEach((el) => {
         const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -52,36 +55,53 @@ const progress = document.querySelector('.progress');
           // 只跑純數字且 >= 5 的節點：「1/36」的 1 不動，36 才遞增
           if (/^\d+$/.test(raw) && Number(raw) >= 5) digits.push({ node, text: raw, value: Number(raw) });
         }
-        if (digits.length) targets.push({ el, digits });
+        if (digits.length) targets.push({ el, digits, done: false });
       });
       if (!targets.length) return;
-      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-      const DURATION = 1300;
-      function run(target) {
-        const start = performance.now();
-        function step(now) {
-          const p = Math.min(1, (now - start) / DURATION);
-          const eased = easeOutCubic(p);
-          target.digits.forEach((d) => { d.node.textContent = String(Math.round(d.value * eased)); });
-          if (p < 1) requestAnimationFrame(step);
-          else target.digits.forEach((d) => { d.node.textContent = d.text; });
-        }
-        requestAnimationFrame(step);
-      }
-      document.fonts.ready.then(() => {
-        // 先以最終值鎖住寬度，遞增過程位數改變時版面才不會左右跳動
+
+      const setZero = (t) => t.digits.forEach((d) => { d.node.textContent = '0'; });
+      const setFinal = (t) => t.digits.forEach((d) => { d.node.textContent = d.text; });
+
+      const start = () => {
+        // 鎖住寬度，遞增時位數變化才不會左右跳動（此時數字仍是最終值）
         targets.forEach((t) => { t.el.style.minWidth = t.el.getBoundingClientRect().width + 'px'; });
-        targets.forEach((t) => t.digits.forEach((d) => { d.node.textContent = '0'; }));
-        const countObserver = new IntersectionObserver((entries) => {
+
+        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // 不支援 IntersectionObserver，或尊重「減少動態」設定 → 直接顯示最終數字、不動畫（永不卡 0）
+        if ((!FORCE_ANIMATE && reduce) || !('IntersectionObserver' in window)) return;
+
+        // 只把「目前還在畫面下方、使用者還沒看到」的數字歸零；已在畫面上的保留最終值，避免閃動
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        targets.forEach((t) => { if (t.el.getBoundingClientRect().top > vh) setZero(t); });
+
+        const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
+        const DURATION = 1300;
+        function run(t) {
+          setZero(t);
+          const t0 = performance.now();
+          (function step(now) {
+            const p = Math.min(1, (now - t0) / DURATION);
+            const e = easeOutCubic(p);
+            t.digits.forEach((d) => { d.node.textContent = String(Math.round(d.value * e)); });
+            if (p < 1) requestAnimationFrame(step); else setFinal(t);
+          })(performance.now());
+        }
+        const obs = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
             const t = targets.find((x) => x.el === entry.target);
-            if (t) run(t);
-            countObserver.unobserve(entry.target);
+            if (t && !t.done) { t.done = true; run(t); }
+            obs.unobserve(entry.target);
           });
-        }, { threshold: 0.5 });
-        targets.forEach((t) => countObserver.observe(t.el));
-      });
+        }, { threshold: 0.35 });
+        targets.forEach((t) => obs.observe(t.el));
+      };
+
+      // 等字體就緒再量寬度；但即使 fonts.ready 遲遲不 resolve，也在 1.5 秒後照常啟動
+      let started = false;
+      const kick = () => { if (started) return; started = true; start(); };
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(kick); setTimeout(kick, 1500); }
+      else kick();
     })();
 
     /* 延伸閱讀輪播：一次顯示 N 張（桌機3／平板2／手機1），箭頭與圓點以「頁」為單位 */
