@@ -1,0 +1,2874 @@
+:root {
+      --ink: #202124;
+      --muted: #5f6368;
+      --paper: #fbfaf7;
+      --panel: #ffffff;
+      --line: #ded8ce;
+      --teal: #1d7f78;
+      --blue: #4267b2;
+      --orange: #c65f2a;
+      --yellow: #f3b43f;
+      --dark: #172025;
+      --lime: #CCFF33;
+      --shadow: 0 16px 42px rgba(46, 38, 28, 0.1);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.85;
+    }
+    .progress {
+      position: fixed;
+      inset: 0 auto auto 0;
+      width: 0;
+      height: 4px;
+      z-index: 60;
+      background: linear-gradient(90deg, var(--teal), var(--yellow), var(--orange));
+    }
+    .wrap { width: min(1040px, calc(100% - 40px)); margin: 0 auto; }
+    .reading { width: min(820px, calc(100% - 40px)); margin: 0 auto 48px; }
+    
+    .hero-intro-visual { position: relative; overflow: hidden; background: #ffffff; }
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 40px 20px;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      z-index: 1;
+    }
+    
+    .hero-copy {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 0;
+      width: 100%;
+      margin-top: 0;
+    }
+    .hero-copy h1 {
+      color: #ffffff;
+      font-size: clamp(3rem, 8.4vw, 6rem);
+      font-weight: 900;
+      margin: 0 0 0 0;
+      line-height: 1.1;
+      letter-spacing: 4px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5), 0 2px 30px rgba(0,0,0,0.6);
+    }
+    .hero-copy h1 .tight-q { margin-left: -0.38em; }
+    /* 進場：主標／副標等字體就緒後淡入上浮（同時避免先閃備援字體的細字；手機大標為圖片不受影響） */
+    .hero-copy h1, .hero-copy .hero-subtitle { transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fonts-loading .hero-copy h1, .fonts-loading .hero-copy .hero-subtitle { opacity: 0; transform: translateY(18px); }
+    h1 .tight-comma, h2 .tight-comma, h3 .tight-comma { margin-right: -0.28em; }
+    h1 .tight-dun, h2 .tight-dun, h3 .tight-dun, .flip-behavior .tight-dun { margin-right: -0.28em; }
+    .font-alt { font-family: inherit; font-weight: inherit; }
+    .hero-copy .hero-subtitle {
+      color: #ffffff;
+      font-size: clamp(1.4rem, 4.2vw, 2.7rem);
+      font-weight: 850;
+      margin: 0;
+      letter-spacing: 4px;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.45), 0 6px 30px rgba(0,0,0,0.58);
+    }
+    
+    .scroll-cue { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 0.9rem; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .scroll-arrow { display: block; animation: scrollArrowBounce 1.6s ease-in-out infinite; }
+    .chevron { display: block; width: 14px; height: 14px; border-right: 2px solid rgba(255,255,255,0.7); border-bottom: 2px solid rgba(255,255,255,0.7); transform: rotate(45deg); }
+    @keyframes scrollArrowBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+
+    section { padding: 84px 0; }
+    /* 錨點跳轉時預留固定表頭（76px）高度，目標不被擋住 */
+    [id] { scroll-margin-top: 92px; }
+
+    /* ===== 延伸閱讀輪播 ===== */
+    .related-reading { padding: 88px 0 96px; background: transparent; }
+    .rr-inner { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .rr-title { text-align: center; font-size: clamp(1.8rem, 3.4vw, 2.35rem); font-weight: 900; letter-spacing: 0.06em; color: var(--ink); margin: 0 0 44px; }
+    .rr-carousel { position: relative; display: flex; align-items: flex-start; gap: 8px; }
+    .rr-viewport { overflow: hidden; flex: 1 1 auto; }
+    .rr-track { display: flex; gap: 24px; transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1); will-change: transform; }
+    /* 卡片寬度由 JS 依「一次顯示幾張」計算並寫入 --rr-card-w */
+    .rr-card { flex: 0 0 var(--rr-card-w, calc((100% - 48px) / 3)); text-decoration: none; color: inherit; display: block; }
+    .rr-card-image { display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; background: #e9e6df; }
+    .rr-card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .rr-card-title { margin: 16px 2px 0; font-size: 1.05rem; font-weight: 700; line-height: 1.6; color: var(--ink); }
+    .rr-card:not(.is-placeholder):hover .rr-card-title { color: #0074bc; }
+    /* 佔位狀態：灰底圖 + 淡字，且不可點 */
+    .rr-card.is-placeholder { pointer-events: none; cursor: default; }
+    .rr-card.is-placeholder .rr-card-image { background: repeating-linear-gradient(45deg, #ece9e2, #ece9e2 12px, #e6e2da 12px, #e6e2da 24px); }
+    .rr-card.is-placeholder .rr-card-title { color: var(--ink); font-weight: 500; }
+    /* 左右箭頭 */
+    /* 箭頭與「圖片」垂直置中：對齊圖片高度的一半（--rr-img-h 由 JS 依卡片寬與 16:10 比例算出），而非整張卡 */
+    .rr-arrow { flex: 0 0 auto; width: 60px; height: 60px; margin-top: calc((var(--rr-img-h, 200px) - 60px) / 2); display: flex; align-items: center; justify-content: center; background: none; border: none; padding: 0; cursor: pointer; color: #b9b3a8; transition: color 0.2s ease; }
+    .rr-arrow svg { width: 46px; height: 46px; }
+    .rr-arrow:hover { color: #0074bc; }
+    .rr-arrow:disabled { color: #ddd8cf; cursor: default; }
+    /* 圓點 */
+    .rr-dots { display: flex; justify-content: center; gap: 10px; margin-top: 40px; }
+    .rr-dot { width: 9px; height: 9px; border-radius: 50%; border: none; padding: 0; background: #c9c4bb; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; }
+    .rr-dot.active { background: var(--ink); transform: scale(1.15); }
+    /* 手機版：縮小箭頭與左右留白，讓卡片放大（箭頭 margin-top 也改用 40px 對齊，避免歪掉） */
+    @media (max-width: 620px) {
+      .rr-inner { padding: 0 12px; }
+      .rr-carousel { gap: 4px; }
+      .rr-arrow { width: 40px; height: 40px; margin-top: calc((var(--rr-img-h, 160px) - 40px) / 2); }
+      .rr-arrow svg { width: 30px; height: 30px; }
+      .rr-title { margin-bottom: 32px; }
+      .rr-dots { margin-top: 28px; }
+    }
+    .intro { background: transparent; border-top: 0; padding-top: 225px; padding-bottom: 95px; position: relative; z-index: 2; }
+    .intro-text { text-align: center; position: relative; width: min(1000px, calc(100% - 40px)); }
+    .intro-text p { color: #3a3d40; font-weight: 700; font-size: 1.4rem; line-height: 2.1; letter-spacing: 0.06em; margin-bottom: 10px; position: relative; z-index: 2; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif; }
+    /* 大前言改為與其他區塊相同：捲入時 .reveal → .visible 淡入上浮（原本此處強制常顯，已移除） */
+    .bubbles { position: absolute; inset: 0; pointer-events: none; z-index: 3; overflow: hidden; }
+    .bubble {
+      position: absolute;
+      top: var(--top);
+      left: var(--left);
+      width: var(--size);
+      height: var(--size);
+      background: var(--bg);
+      border-radius: 50%;
+      box-shadow: 0 0 6px 1px var(--bg);
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.7;
+    }
+    .icon-strip { display: none; flex-wrap: wrap; justify-content: center; gap: 14px; margin: 0 0 32px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .bubble { animation: dotBreathe 6s ease-in-out infinite; }
+      .bubble:nth-child(4n)   { animation-duration: 7.5s; animation-delay: -1.2s; }
+      .bubble:nth-child(4n+1) { animation-duration: 5s;   animation-delay: -3s; }
+      .bubble:nth-child(4n+2) { animation-duration: 8s;   animation-delay: -0.6s; }
+      .bubble:nth-child(4n+3) { animation-duration: 6.5s; animation-delay: -2.4s; }
+    }
+    @keyframes dotBreathe {
+      0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+      50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.18); }
+    }
+    .icon-chip { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1; }
+    .intro-card { background: #fff; margin: 70px auto 0; max-width: 820px; border: 1px solid #000; border-radius: 12px; padding: clamp(24px, 4vw, 40px); display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: center; }
+    .intro-card-full { max-width: none; width: 100%; }
+    .intro-card-full:not(.intro-card-single) { padding-top: clamp(48px, 6vw, 72px); padding-bottom: clamp(48px, 6vw, 72px); padding-left: clamp(48px, 6vw, 84px); padding-right: clamp(48px, 6vw, 84px); }
+
+    .intro-card-single { grid-template-columns: 1fr; padding: clamp(44px, 5vw, 64px) clamp(48px, 6vw, 84px); }
+
+
+    /* 三個人物故事共用折角 */
+    .person-card {
+      --fold-size: 54px;
+      position: relative;
+      overflow: hidden;
+      clip-path: polygon(
+        0 0,
+        calc(100% - var(--fold-size)) 0,
+        100% var(--fold-size),
+        100% 100%,
+        0 100%
+      );
+    }
+
+    .person-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: var(--fold-size);
+      height: var(--fold-size);
+      background: var(--lime);
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .intro-card-full .intro-card-photo { border-radius: 0; }
+    .intro-card-photo-left { grid-template-columns: 1fr 1fr; gap: 0; border: none; border-radius: 8px; box-shadow: var(--shadow); padding: 0; overflow: hidden; align-items: stretch; }
+    .intro-card-photo-left .intro-card-text { padding: clamp(48px, 6vw, 72px) clamp(40px, 6vw, 72px); display: flex; flex-direction: column; justify-content: center; }
+    .intro-card-photo-left .intro-card-text p:last-child { margin-bottom: 0; }
+    .intro-card-photo-left .intro-card-text h3 { text-align: center; }
+    .intro-card-photo-left .intro-card-photo { min-height: 100%; border-radius: 0; }
+    .intro-card-text h3, .intro-card-text p { color: #000; }
+    .intro-card-text h3 { font-size: clamp(1.3rem, 2.6vw, 1.7rem); text-align: center; margin-bottom: 16px; }
+    .intro-card-text p { font-size: 0.98rem; }
+    .intro-card-photo { min-height: 220px; border-radius: 5px; background: linear-gradient(135deg, rgba(29,127,120,0.18), rgba(243,180,63,0.18)); overflow: hidden; }
+    .intro-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    @media (max-width: 760px) { .intro-card { grid-template-columns: 1fr; } .intro-card-photo { order: -1; min-height: 200px; } }
+    .part-label { color: var(--orange); font-size: 0.92rem; font-weight: 850; margin: 0 0 10px; text-align: center; }
+    h1, h2, h3 { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif; }
+    h2 { margin: 0 0 20px; font-size: clamp(1.85rem, 4vw, 3rem); font-weight: 900; line-height: 1.35; text-align: center; letter-spacing: 1px; }
+    h3 { margin: 0 0 12px; font-size: clamp(1.15rem, 2.2vw, 1.5rem); font-weight: 850; line-height: 1.35;}
+    p { margin: 0 0 18px; color: var(--muted); font-size: 1.04rem; }
+    .lead { color: #3a3d40; font-size: 1.12rem; text-align: center; }
+    .part1 { background: #f6f5f3; }
+    .part1 .part-label, .part1 h2 { color: #0074bc; }
+    .part1 .lead { color: #3a3d40; text-align: left; }
+    .part3-blue { background: #0074bc; }
+    .part3-blue .part-label, .part3-blue h2 { color: #d1ff4f; }
+    .part3-blue .lead { color: #fff; text-align: left; }
+    /* 各 Part 前言行距略開（覆寫 .intro-text p,.lead 的 1.6 !important） */
+    .reading .lead { line-height: 1.85 !important; }
+    .outline {
+      margin-top: 30px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 0;
+      display: grid;
+      gap: 8px;
+      color: #4a4d50;
+      font-weight: 700;
+    }
+    .outline span { color: var(--orange); margin-right: 8px; font-weight: 900; }
+    .story { background: var(--panel); border: 1px solid var(--line); border-radius: 5px; }
+    .stat-block { max-width: 820px; margin-left: auto; margin-right: auto; }
+    .stat-pill { display: block; width: fit-content; margin: 0 auto 24px; background: #0074bc; color: #fff; font-weight: 800; font-size: 1.15rem; letter-spacing: 0.1em; padding: 8px 32px; border-radius: 999px; }
+    .stat-grid { display: grid; gap: 20px; }
+    .stat-grid-2col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat-grid-3col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .stat-card { background: #fff; border-radius: 8px; box-shadow: var(--shadow); padding: 28px; display: flex; align-items: center; gap: 2px; }
+    .stat-card-vertical { flex-direction: column; text-align: center; }
+    .stat-icon { width: 140px; height: 140px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+    .stat-card-text { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .stat-label { font-weight: 800; font-size: 1.2rem; margin: 0; color: var(--ink); letter-spacing: 0.05em; }
+    .shift-right { position: relative; left: 8px; }
+    .tight-paren { margin-left: -0.35em; letter-spacing: normal; }
+    .stat-acronym { font-size: 1.15em; margin-right: 0.15em; letter-spacing: normal; }
+    .stat-number { display: inline-flex; align-items: baseline; justify-content: center; gap: 4px; font-size: 3.8rem; font-weight: 900; letter-spacing: 0.03em; color: #0074bc; margin: 0; line-height: 1.1; font-family: 'Montserrat', "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif; }
+    .stat-unit { font-size: 1.05rem; font-weight: 600; position: relative; top: -3px; }
+    /* 開頭的「約」收近後方數字 */
+    .stat-number .stat-unit:first-child { margin-right: -3px; }
+    /* 符號比數字細一個字重（數字 900） */
+    .stat-plus, .stat-percent, .stat-slash, .stat-k, .stat-tilde { font-weight: 750; }
+    .stat-percent, .stat-k, .stat-slash { font-size: 0.48em; position: relative; top: -3px; }
+    .stat-tilde { font-size: 0.58em; position: relative; top: -0.28em; }
+    /* 「/」改為與數字垂直置中（%、k 維持齊底） */
+    .stat-slash { margin: 0 5px; top: -10.5px; }
+    .stat-plus { font-size: 0.75em; display: inline-block; vertical-align: middle; position: relative; top: -5px; }
+    .stat-caption { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 0; letter-spacing: 0.05em; }
+    .source, .stat-note { color: #777; font-size: 0.9rem; margin-top: 24px; }
+    /* 註解緊貼其後的資料來源 */
+    .stat-note + .source { margin-top: 4px; }
+    .story { padding: clamp(24px, 4vw, 38px); margin: 28px 0; box-shadow: var(--shadow); }
+    .story-label { color: var(--teal); font-size: 0.92rem; font-weight: 850; margin-bottom: 8px; }
+    .type-heading { margin: 0 0 18px; text-align: center; font-size: clamp(1.3rem, 2.6vw, 1.7rem); color: #fff; }
+    .type-block { border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+    .tabs.segmented { display: flex; }
+    .tab-btn { flex: 1; appearance: none; border: none; background: var(--panel); color: var(--ink); padding: 18px 20px; font: inherit; font-size: 1rem; font-weight: 800; cursor: pointer; text-align: center; transition: 0.2s ease; }
+    .tab-btn[data-tab="asd"] { background: #fdd22b; color: #000; }
+    .tab-btn[data-tab="adhd"] { background: #fdd22b; color: var(--ink); }
+    .tab-btn[data-tab="dyslexia"] { background: #90cdff; color: var(--ink); }
+    .tab-btn.active { box-shadow: inset 0 -4px 0 rgba(0,0,0,0.35); }
+    .type-card { display: grid; grid-template-columns: 1.05fr 0.95fr; transition: background 0.3s ease; }
+    .type-card.bg-asd { background: #fdd22b; }
+    .type-card.bg-adhd { background: #fdd22b; }
+    .type-card.bg-dyslexia { background: #90cdff; }
+    .type-visual { min-height: 380px; display: flex; align-items: flex-end; justify-content: flex-start; overflow: hidden; padding: 50px 12px 50px 50px; }
+    .type-visual img { width: 100%; height: 100%; object-fit: contain; object-position: left bottom; border-radius: 10px; transition: opacity 0.25s ease; }
+    .type-content { padding: 40px 55px 40px 20px; align-self: center; color: #000; }
+    .type-content h3 { margin: 0 0 14px; font-size: 1.9rem; }
+    .type-content p { margin: 0 0 6px; color: #000; }
+    .badge { display: inline-block; background: var(--ink); color: #fff; font-weight: 800; font-size: 0.85rem; padding: 6px 16px; border-radius: 999px; margin: 18px 0 8px; }
+    .type-content .type-quote { margin-top: 32px; padding-top: 28px; border-top: 1px solid rgba(0,0,0,0.2); font-size: 1.35rem; font-weight: 700; line-height: 1.6; letter-spacing: 0.035em; text-indent: -0.55em; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .quote{
+
+    position:relative;
+
+    margin-top:36px;
+
+    padding:24px 0 24px 38px;
+
+    font-size:34px;
+
+    line-height:1.6;
+
+    font-weight:700;
+
+}
+    .quote::before{
+
+content:"";
+
+position:absolute;
+
+left:0;
+
+top:0;
+
+width:10px;
+
+height:100%;
+
+background:#0074bc;
+
+border-radius:10px;
+
+}
+.quote::after{
+
+content:"❝";
+
+position:absolute;
+
+left:-8px;
+
+top:-32px;
+
+font-size:74px;
+
+color:#72b5ff;
+
+font-family:Georgia,serif;
+
+line-height:1;
+
+opacity:.9;
+
+}
+    .flip-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 28px; max-width: var(--flip-grid-width, 770px); margin-left: auto; margin-right: auto; }
+    .flip-card { min-height: 349px; perspective: 1000px; cursor: pointer; }
+    .flip-inner { position: relative; width: 100%; min-height: 371px; height: 100%; transition: transform 0.55s ease; transform-style: preserve-3d; }
+    .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+    .flip-face { position: absolute; inset: 0; display: flex; flex-direction: column; backface-visibility: hidden; background: #fff; border-radius: 8px; border: none; padding: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    .flip-face-front .flip-tag { background: #0074bc; color: #fff; margin: 34px 90px 0 90px; border-radius: 999px; }
+    .flip-face-back { transform: rotateY(180deg); }
+    .flip-face-back .flip-tag { background: #e8623a; color: #fff; margin: 34px 90px 0 90px; border-radius: 999px; }
+    .flip-tag { display: flex; align-items: center; justify-content: center; gap: 0.34em; white-space: nowrap; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.06em; line-height: 1.5; padding: 4px 14px; margin: 0; text-align: center; width: auto; }
+    /* 標籤前的眼睛／大腦 icon（images/icon-eye.svg、images/icon-brain.svg） */
+    .flip-tag-icon { height: 1.15em; width: auto; flex-shrink: 0; }
+    /* 正面眼睛 icon 略縮（背面腦 icon 不動） */
+    .flip-face-front .flip-tag-icon { height: 1em; }
+    .flip-image { width: 100%; height: 190px; background: #fff; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.9rem; flex-shrink: 0; margin-top: 22px; }
+    .flip-image img { width: auto; height: 100%; object-fit: contain; }
+    .flip-content { padding: 4px 48px 42px 48px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
+    .flip-face-back .flip-content { padding: 16px 48px 16px 48px; display: grid; grid-template-rows: 1fr 1fr; height: 100%; }
+    .flip-content p { margin: 0 0 12px; color: #000; font-size: 1.1rem; line-height: 1.6; }
+    .flip-content p:last-child { margin-bottom: 0; }
+    .flip-face-back .flip-content p:last-child { align-self: start; text-align: left; }
+    .flip-content .flip-behavior { font-weight: 900; font-size: 1.58rem; color: #0074bc; margin: 0; line-height: 1.3; letter-spacing: 1px; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif; }
+    .stroke { -webkit-text-stroke: 0.45px currentColor; }
+    .stroke-light { -webkit-text-stroke: 0.25px currentColor; }
+    /* 標題撐滿上半格 → 底線固定在格線高度（不隨行數浮動）；文字再於格內垂直置中 */
+    .flip-face-back .flip-content .flip-behavior { align-self: stretch; display: flex; align-items: center; justify-content: center; color: #e8623a; border-bottom: 1px solid #e8623a; padding-bottom: 0; margin-bottom: 0; width: 100%; box-sizing: border-box; text-align: center; }
+    .flip-face-back .flip-content p:last-child { padding-top: 22px; }
+    /* 正面標題（反面維持原大小） */
+    .flip-face-front .flip-content .flip-behavior { font-size: 23px; }
+    /* behavior3 圖檔本身上下留白多（人物僅佔畫布 74%，其他張約 96%），放大補回視覺大小 */
+    .flip-image img[src$="behavior3.png"] { transform: scale(1.1); }
+    /* 正面右下角提示：翻面了解原因 */
+    .flip-face-front .flip-content .flip-hint { position: absolute; right: 16px; bottom: 12px; display: flex; align-items: center; gap: 5px; margin: 0; color: #9aa0a6; font-size: 0.72rem; font-weight: 400; line-height: 1; letter-spacing: 0.02em; white-space: nowrap; }
+    .flip-hint-arrow { font-size: 1.05em; }
+    .workplace { background: var(--dark); color: #fff; }
+    .workplace p, .workplace .lead { color: rgba(255,255,255,0.78); }
+    .workplace .part-label { color: var(--yellow); }
+.workplace-cols{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:28px;
+    margin-top:48px;
+}
+
+.workplace-card{
+    background:#fff;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(0,0,0,.08);
+    padding:22px;
+}
+
+.workplace-card-image{
+    display:block;
+    width:100%;
+    height:220px;
+    object-fit:contain;
+    object-position:center;
+    margin:0 0 24px;
+    background:#fff;
+    box-shadow:none;
+    border-radius:0;
+}
+
+.workplace-card h3{
+    margin:0 0 20px;
+    text-align:center;
+    font-size:22px;
+    letter-spacing:0.06em;
+    font-weight:900;
+    color:#0074bc;
+    line-height:1.4;
+}
+
+.workplace-card p{
+    margin:0;
+    color:#3a3d40;
+    line-height:1.9;
+    font-size:1.04rem;
+}
+/* 移除 Part 4 內層段落的雙層框效果 */
+.workplace-cols .workplace-card-content p {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #333; /* 確保文字顏色好閱讀 */
+}
+
+/* 確保滑鼠懸停 (Hover) 時也不會長出內層陰影 */
+.workplace-cols .workplace-card-content p:hover {
+    box-shadow: none !important;
+    transform: none !important;
+}
+/* 增加 Part 4 卡片文字區塊的上下左右邊距 */
+.workplace-cols .workplace-card-content {
+    padding: 0px 24px 24px 24px !important; /* 順序為：上 右 下 左 */
+}
+
+@media(max-width:768px){
+    .workplace-cols{
+        grid-template-columns:1fr;
+    }
+
+    .workplace-card-image{
+        height:180px;
+    }
+}
+
+.workplace-cols p b { display: block; color: var(--lime); font-size: 1.1rem; margin-bottom: 8px; }
+    .workplace-cols .lead { text-align: left; }
+    .closing-statement { max-width: none; width: 100%; margin: 56px auto 0; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.18); text-align: center; }
+    .closing-statement h3 { color: var(--lime); font-size: clamp(1.4rem, 3vw, 2.1rem); font-weight: 900; letter-spacing: 0.05em; margin: 0 0 14px; }
+    .closing-statement p { color: rgba(255,255,255,0.8); font-size: 1.08rem; margin: 0; letter-spacing: 0.04em; }
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .read-more { display: block; width: 150px; margin: 56px auto 0; background: #000; color: #fff; text-decoration: none; padding: 5px 24px; border-radius: 999px; font-weight: 800; font-size: 0.95rem; transition: background 0.3s ease; text-align: center; line-height: 1.6; position: relative; }
+    .read-more-icon { position: absolute; right: 2px; bottom: -14px; width: auto; height: 40px; display: block; }
+    .read-more:hover { background: #555; }
+    .part1 .read-more, .part3-blue .read-more, .workplace .read-more { margin-bottom: 56px; }
+    /* 阿國卡片內的按鈕：收掉下方大間距（僅留卡片本身 padding） */
+    #education .read-more { margin-top: 32px; margin-bottom: 4px; }
+    @media (max-width: 900px) { .type-card { grid-template-columns: 1fr; } .type-visual { padding: 24px 24px 0 24px; justify-content: center; } .type-content { padding: 30px; } .flip-grid, .stat-grid-3col { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 620px) {
+      .wrap, .reading { width: min(100% - 28px, 1040px); }
+      section { padding: 64px 0; }
+      .hero-copy { padding: 0; }
+      .flip-grid, .trait-list, .stat-grid-2col, .stat-grid-3col, .workplace-cols { grid-template-columns: 1fr; }
+      .stat-card { flex-direction: column; text-align: center; }
+      .tabs.segmented { width: 100%; }
+      .tab-btn { width: 100%; }
+      .story, .type-content { padding: 22px; }
+      .intro-text p br { display: none; }
+      .part1 .lead br { display: none; }
+      .icon-strip { display: none; }
+    }
+
+
+    /* ===== 全站圓角統一 ===== */
+    :root {
+      --radius-card: 10px;
+      --radius-small: 6px;
+      --radius-pill: 999px;
+      /* Part 3 翻卡區寬度；阿國人物卡沿用同一值以保持對齊 */
+      --flip-grid-width: 730px;
+    }
+
+    .intro-card,
+    .stat-card,
+    .type-block,
+    .flip-face,
+    .workplace-cols p {
+      border-radius: var(--radius-card);
+    }
+
+    .intro-card-photo,
+    .stat-icon {
+      border-radius: var(--radius-small);
+    }
+
+    .stat-pill,
+    .badge,
+    .flip-tag,
+    .read-more {
+      border-radius: var(--radius-pill);
+    }
+
+    /* 張家銘、阿國：移除外框線 */
+    .person-card-borderless {
+      border: none !important;
+    }
+
+    /* ===== 人物故事折角：外框與折進來的角都帶圓角 ===== */
+    .person-card {
+      --fold-size: 54px;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-card);
+      clip-path: none;
+    }
+
+    /* 用背景色遮出右上缺角；右下角做圓弧，形成折角內側圓角 */
+    .person-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: var(--fold-size);
+      height: var(--fold-size);
+      background: inherit;
+      border-bottom-left-radius: var(--radius-small);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* 綠色折頁 */
+    .person-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: var(--fold-size);
+      height: var(--fold-size);
+      background: var(--lime);
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+      border-bottom-left-radius: var(--radius-small);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* 確保人物卡內的照片不覆蓋折角 */
+    .person-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+
+    /* ===== 折角修正版：切角 + 可見的內折三角 ===== */
+    .person-card {
+      --fold-size: 54px;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-card);
+      clip-path: polygon(
+        0 0,
+        calc(100% - var(--fold-size)) 0,
+        100% var(--fold-size),
+        100% 100%,
+        0 100%
+      );
+    }
+
+    .person-card::before {
+      display: none !important;
+    }
+
+    .person-card::after {
+      content: "";
+      display: block !important;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: var(--fold-size);
+      height: var(--fold-size);
+      background: var(--lime);
+      clip-path: polygon(
+        0 0,
+        0 100%,
+        100% 100%
+      );
+      border-bottom-left-radius: var(--radius-small);
+      transform: none !important;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+
+    /* 人物卡本體不套陰影（陰影由外層 .person-shadow-shell 負責） */
+    .intro-card-photo-left.person-card,
+    .intro-card-single.person-card {
+      box-shadow: none !important;
+      filter: none !important;
+    }
+
+    /* 甄瑞興：卡片外層 wrap 不適合整體套陰影，因此用獨立 drop-shadow 容器效果 */
+    .wrap:has(> .intro-card-photo-left.person-card) > .intro-card-photo-left.person-card {
+      filter: drop-shadow(0 12px 18px rgba(46, 38, 28, 0.10));
+      overflow: visible;
+    }
+
+    /* 阿國卡片：用外層建立陰影，不受卡片 clip-path 裁切 */
+    .intro-card-single.person-card {
+      filter: drop-shadow(0 12px 18px rgba(46, 38, 28, 0.10));
+      overflow: visible;
+    }
+
+
+    /* 真正的陰影容器：外層負責陰影，內層負責切角 */
+    .person-shadow-shell {
+      max-width: 820px;
+      margin: 70px auto 0;
+      filter: drop-shadow(0 12px 20px rgba(46, 38, 28, 0.12));
+    }
+
+    .person-shadow-shell > .person-card {
+      margin-top: 0 !important;
+      filter: none !important;
+    }
+
+    .person-shadow-shell:has(.intro-card-full) {
+      max-width: none;
+      width: 100%;
+      margin-top: 56px;
+    }
+
+
+    /* ===== 人物卡陰影結構修正：整張卡片視為單一物件 ===== */
+    .person-shadow-shell {
+      width: min(820px, 100%);
+      max-width: 820px;
+      margin: 70px auto 0;
+      display: flow-root;
+      filter: drop-shadow(0 10px 18px rgba(46, 38, 28, 0.14));
+    }
+
+    .person-shadow-shell > .person-card {
+      width: 100%;
+      max-width: none;
+      margin: 0 !important;
+      box-shadow: none !important;
+      filter: none !important;
+    }
+
+    /* 阿國的滿寬人物卡維持原本寬度 */
+    .person-shadow-shell:has(> .intro-card-single.person-card) {
+      width: 100%;
+      max-width: none;
+      margin-top: 56px;
+    }
+
+
+    /* ===== 張家銘人物卡版面微調 ===== */
+    .zhang-card {
+      align-items: stretch;
+      grid-template-columns: 1.45fr 0.85fr;
+      column-gap: 36px;
+    }
+    /* 按鈕獨立一列、跨滿兩欄置中（讓文字＋照片那列高度不受按鈕影響，照片維持原高度） */
+    .zhang-card > .zhang-read-more {
+      grid-column: 1 / -1;
+      justify-self: center;
+      margin-top: 40px;
+      margin-bottom: 0;
+    }
+
+    /* 甄瑞興整塊寬度比照張家銘（滿寬） */
+    .person-shadow-shell:has(> .intro-card-photo-left) {
+      width: 100%;
+      max-width: none;
+    }
+
+    .zhang-card .intro-card-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .zhang-card .intro-card-text h3 {
+      text-align: left;
+    }
+
+    .zhang-card .intro-card-photo {
+      align-self: stretch;
+      min-height: 0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .zhang-card .intro-card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+
+    /* 阿國人物卡：與上方張家銘卡片總寬一致 */
+    .person-shadow-shell:has(> .intro-card-single.person-card) {
+      width: 100%;
+      max-width: none;
+    }
+
+    .person-shadow-shell > .intro-card-single.person-card {
+      width: 100%;
+      max-width: none;
+    }
+
+
+    /* 阿國人物卡：寬度改為與上方 flip-grid 一致 */
+    .person-shadow-shell:has(> .intro-card-single.person-card) {
+      width: min(var(--flip-grid-width, 770px), 100%);
+      max-width: var(--flip-grid-width, 770px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .person-shadow-shell > .intro-card-single.person-card {
+      width: 100%;
+      max-width: 100%;
+    }
+
+
+    /* ===== Part 4 視覺重整 ===== */
+    .workplace {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(0,116,188,0.22), transparent 30%),
+        radial-gradient(circle at 88% 76%, rgba(209,255,79,0.08), transparent 24%),
+        #172025;
+      padding-top: 104px;
+      padding-bottom: 112px;
+    }
+
+    .workplace .reading {
+      margin-bottom: 54px;
+    }
+
+    .workplace h2 {
+      color: #fff;
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .workplace .part-label {
+      color: var(--lime);
+    }
+
+    .workplace-intro-line {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 18px;
+      margin: 0 auto 28px;
+      max-width: 820px;
+      color: rgba(255,255,255,0.62);
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+    }
+
+    .workplace-intro-line span {
+      height: 1px;
+      background: rgba(255,255,255,0.16);
+    }
+
+    .workplace-cols {
+      max-width: 820px;
+      margin: 0 auto;
+      gap: 18px;
+    }
+.workplace-card{
+    background:#fff;
+    border-radius:14px;
+    overflow:hidden;
+    padding:22px;
+    box-shadow:0 12px 30px rgba(0,0,0,.15);
+}
+
+.workplace-card-content{
+    padding:0;
+    background:none;
+    box-shadow:none;
+}
+
+.workplace-card-content p{
+    margin:0;
+    padding:0;
+    background:none;
+    box-shadow:none;
+    color:#333;
+    line-height:1.9;
+}
+
+.workplace-card-content b{
+    display:block;
+    margin:0 0 18px;
+    text-align:center;
+    color:#0074bc;
+    font-size:30px;
+    font-weight:900;
+}
+
+    .workplace-cols p b {
+      color: var(--lime);
+      font-size: 1.22rem;
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+
+    .closing-statement {
+      max-width: 820px;
+      margin: 72px auto 0;
+      padding: 58px 44px 52px;
+      border-top: 0;
+      border-radius: var(--radius-card);
+      background: var(--lime);
+      color: #172025;
+      text-align: center;
+    }
+
+    .closing-kicker {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 4px 14px;
+      border: 1px solid rgba(23,32,37,0.35);
+      border-radius: 999px;
+      color: #172025;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .closing-statement h3 {
+      color: #172025;
+      font-size: clamp(1.7rem, 3.5vw, 2.5rem);
+      line-height: 1.35;
+      margin-bottom: 18px;
+    }
+
+    .closing-statement p {
+      color: rgba(23,32,37,0.78);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .workplace .read-more {
+      margin-top: 34px !important;
+      margin-bottom: 0 !important;
+      background: #fff;
+      color: #172025;
+    }
+
+    .workplace .read-more:hover {
+      background: #f2f2f2;
+    }
+
+    @media (max-width: 620px) {
+      .workplace {
+        padding-top: 76px;
+        padding-bottom: 84px;
+      }
+
+      .workplace-intro-line {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .workplace-intro-line span {
+        display: none;
+      }
+
+      .workplace-cols p {
+        min-height: 0;
+        padding: 26px 24px;
+      }
+
+      .closing-statement {
+        margin-top: 48px;
+        padding: 42px 24px 38px;
+      }
+    }
+
+
+    /* ===== Part 4 第二版：回到全站卡片語言 ===== */
+    .workplace {
+      background:
+        radial-gradient(circle at 14% 18%, rgba(0,116,188,0.16), transparent 30%),
+        #172025;
+    }
+
+    .workplace .reading {
+      margin-bottom: 48px;
+    }
+
+    .workplace-cols {
+      max-width: 820px;
+      margin: 0 auto 32px;
+      gap: 20px;
+    }
+
+    .workplace-cols p {
+      min-height: 0;
+      padding: 30px 32px;
+      background: #f6f5f3;
+      border: none;
+      border-radius: var(--radius-card);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      backdrop-filter: none;
+      color: #3a3d40;
+    }
+
+    .workplace-cols .lead {
+      color: #3a3d40;
+    }
+
+    .workplace-cols p b {
+      color: #0074bc;
+      font-size: 1.18rem;
+      margin-bottom: 12px;
+    }
+
+    /* 結尾不再使用整塊螢光黃 */
+    .closing-statement {
+      max-width: 820px;
+      width: 100%;
+      margin: 72px auto 0;
+      padding: 48px 0 0;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      border-radius: 0;
+      background: transparent;
+      color: #fff;
+      text-align: center;
+    }
+
+    .closing-statement h3 {
+      max-width: 760px;
+      margin: 0 auto 18px;
+      color: #fff;
+      font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+      line-height: 1.4;
+    }
+
+    .closing-statement h3::after {
+      content: "";
+      display: block;
+      width: 54px;
+      height: 6px;
+      margin: 22px auto 0;
+      border-radius: 999px;
+      background: var(--lime);
+    }
+
+    .closing-statement p {
+      max-width: 680px;
+      margin: 0 auto;
+      color: rgba(255,255,255,0.76);
+      font-size: 1.08rem;
+    }
+
+    .closing-kicker,
+    .workplace-intro-line {
+      display: none !important;
+    }
+
+    .workplace .read-more {
+      margin-top: 38px !important;
+      background: #fff;
+      color: #172025;
+    }
+
+    @media (max-width: 620px) {
+      .workplace-cols p {
+        padding: 26px 24px;
+      }
+
+      .closing-statement {
+        margin-top: 52px;
+        padding-top: 40px;
+      }
+    }
+
+
+    /* ===== Part 4 層級與卡片文字修正 ===== */
+
+    /* 上方章節主標維持最大層級 */
+    .workplace > .reading h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    /* 結尾標題降一級，避免與章節主標搶層級 */
+    .closing-statement h3 {
+      max-width: 720px;
+      font-size: clamp(1.45rem, 2.7vw, 2rem);
+      line-height: 1.45;
+      font-weight: 850;
+    }
+
+    .closing-statement h3::after {
+      width: 44px;
+      height: 5px;
+      margin-top: 18px;
+    }
+
+    /* 兩張卡片的字級、行高完全統一 */
+    .workplace-cols p,
+    .workplace-cols .lead {
+      font-size: 1.04rem;
+      line-height: 1.85;
+      font-weight: 400;
+    }
+
+    /* 卡片標題與內文之間不留額外空行 */
+    .workplace-cols p b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.18rem;
+      line-height: 1.5;
+    }
+
+    /* 清除 lead 原本可能帶入的不同文字設定 */
+    .workplace-cols .lead {
+      text-align: left;
+      color: #3a3d40;
+    }
+
+
+    /* ===== Part 4 間距與結尾文字寬度修正 ===== */
+
+    /* 卡片內的小標與內文靠近 */
+    .workplace-cols p b {
+      margin-bottom: 0 !important;
+    }
+
+    /* 消除 b 後換行造成的視覺空隙，並統一卡片段落節奏 */
+    .workplace-cols > p {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 8px;
+    }
+
+    /* 結尾文字區寬度與上方兩張卡片總寬一致 */
+    .closing-statement {
+      width: min(820px, 100%);
+      max-width: 820px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .closing-statement h3,
+    .closing-statement p {
+      width: 100%;
+      max-width: none;
+    }
+
+
+    /* Part 4 卡片：移除 HTML 換行造成的空白層，只保留小間距 */
+    .workplace-cols > p {
+      gap: 6px;
+    }
+
+    .workplace-cols p b {
+      margin: 0 !important;
+    }
+
+
+    /* ===== Part 4 最終層級微調 ===== */
+
+    /* 主標欄寬放大，桌機盡量維持單行 */
+    .workplace > .reading {
+      width: min(1100px, calc(100% - 40px));
+      max-width: 1100px;
+    }
+
+    .workplace > .reading h2 {
+      max-width: none;
+      white-space: nowrap;
+      font-size: clamp(2rem, 3.6vw, 3rem);
+    }
+
+    /* 結尾主句改為螢光綠 */
+    .closing-statement h3 {
+      color: var(--lime);
+    }
+
+    /* 移除結尾標題下方短橫線 */
+    .closing-statement h3::after {
+      display: none;
+    }
+
+    /* 閱讀完整文章按鈕改為低對比灰色 */
+    .workplace .read-more {
+      background: #4b555a;
+      color: #fff;
+    }
+
+    .workplace .read-more:hover {
+      background: #5d686d;
+    }
+
+    @media (max-width: 760px) {
+      .workplace > .reading h2 {
+        white-space: normal;
+      }
+    }
+
+
+    /* Part 4 兩張卡片小標：置中並套用大標字型 */
+    .workplace-cols p b {
+      text-align: center;
+      font-family: "Noto Sans TC",
+                   "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      font-weight: 900;
+      font-size: 1.28rem;
+      line-height: 1.4;
+      width: 100%;
+    }
+
+
+    /* ===== 人物故事折角配色調整 ===== */
+
+    /* 甄瑞興、阿國：使用 Part 2 的主背景藍 */
+    .person-card::after {
+      background: #0074bc;
+    }
+
+    /* 張家銘：因卡片位於 Part 2 藍底上，使用更深一階的藍 */
+    .zhang-card::after {
+      background: #00588f;
+    }
+
+
+    /* ===== Part 4：螢光綠統一改為主藍 ===== */
+    .workplace .part-label,
+    .closing-statement h3 {
+      color: #0074bc;
+    }
+
+    /* ===== 卡片 Hover 動態 ===== */
+
+    /* 共用：柔和放大＋上浮，不做過度彈跳 */
+    .intro-card,
+    .stat-card,
+    .type-block,
+    .flip-card,
+    .workplace-cols p {
+      transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease,
+        filter 0.28s ease;
+      will-change: transform;
+    }
+
+    /* 人物故事卡 */
+    .person-shadow-shell {
+      transition: transform 0.3s ease, filter 0.3s ease;
+      transform-origin: center;
+    }
+
+    .person-shadow-shell:hover {
+      transform: translateY(-5px) scale(1.012);
+      filter: drop-shadow(0 16px 24px rgba(46, 38, 28, 0.16));
+    }
+
+    /* 數據卡 */
+    .stat-card:hover {
+      transform: translateY(-6px) scale(1.025);
+      box-shadow: 0 18px 36px rgba(46, 38, 28, 0.14);
+    }
+
+    /* Part 2 類型卡：只微微上浮，避免互動區晃太大 */
+    .type-block:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 38px rgba(0,0,0,0.18);
+    }
+
+    /* 翻牌卡：hover 只上浮，點擊翻面功能維持原樣 */
+    .flip-card:hover {
+      transform: translateY(-6px) scale(1.015);
+    }
+
+    /* Part 4 兩張卡 */
+    .workplace-cols p:hover {
+      transform: translateY(-6px) scale(1.018);
+      box-shadow: 0 18px 34px rgba(0,0,0,0.24);
+    }
+
+    /* 鍵盤操作也有相同回饋 */
+    .flip-card:focus-visible {
+      transform: translateY(-6px) scale(1.015);
+      outline: 3px solid #0074bc;
+      outline-offset: 4px;
+    }
+
+    /* 手機與減少動態偏好：關閉 hover 位移 */
+    @media (hover: none), (prefers-reduced-motion: reduce) {
+      .intro-card,
+      .stat-card,
+      .type-block,
+      .flip-card,
+      .workplace-cols p,
+      .person-shadow-shell {
+        transition: none;
+      }
+
+      .person-shadow-shell:hover,
+      .stat-card:hover,
+      .type-block:hover,
+      .flip-card:hover,
+      .workplace-cols p:hover {
+        transform: none;
+      }
+    }
+
+
+    /* ===== Hover 動態精簡：只保留數據卡與翻牌卡 ===== */
+
+    /* 關閉人物故事卡動態 */
+    .person-shadow-shell,
+    .person-shadow-shell:hover {
+      transition: none !important;
+      transform: none !important;
+    }
+
+    /* 保留原本人物卡陰影，不因 hover 改變 */
+    .person-shadow-shell:hover {
+      filter: drop-shadow(0 10px 18px rgba(46, 38, 28, 0.14));
+    }
+
+    /* 關閉 Part 2 類型卡動態 */
+    .type-block,
+    .type-block:hover {
+      transition: none !important;
+      transform: none !important;
+    }
+
+    /* 關閉 Part 4 卡片動態 */
+    .workplace-cols p,
+    .workplace-cols p:hover {
+      transition: none !important;
+      transform: none !important;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+    }
+
+    /* 數據卡：保留 hover */
+    .stat-card {
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-6px) scale(1.025);
+      box-shadow: 0 18px 36px rgba(46, 38, 28, 0.14);
+    }
+
+    /* 翻牌卡：保留 hover，上浮提示可互動 */
+    .flip-card {
+      transition: transform 0.28s ease;
+    }
+
+    .flip-card:hover {
+      transform: translateY(-6px) scale(1.015);
+    }
+
+
+    /* ===== 數據卡 hover：完全無變化（不位移、陰影同靜止狀態） ===== */
+    .stat-card:hover {
+      transform: none;
+      box-shadow: var(--shadow);
+    }
+
+    .flip-card:hover,
+    .flip-card:focus-visible {
+      transform: translateY(-6px);
+    }
+
+    /* 結尾重點句改回螢光綠 */
+    .closing-statement h3 {
+      color: var(--lime);
+    }
+
+
+    /* ===== 阿國人物卡：垂直置中＋手機避開折角 ===== */
+    .intro-card-single.person-card .intro-card-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 180px;
+    }
+
+    @media (max-width: 620px) {
+      .intro-card-single.person-card {
+        /* 右上保留折角安全區，避免標題與文字被遮住 */
+        padding-top: calc(32px + var(--fold-size));
+        padding-right: 28px;
+        padding-bottom: 32px;
+        padding-left: 28px;
+      }
+
+      .intro-card-single.person-card .intro-card-text {
+        min-height: 0;
+      }
+    }
+
+
+    /* 手機版：張家銘引言左側直線跟隨整段文字高度 */
+    @media (max-width: 620px) {
+      .zhang-card blockquote,
+      .zhang-card .quote,
+      .zhang-card .intro-quote {
+        height: auto;
+        min-height: 0;
+        border-left-width: 5px;
+        border-left-style: solid;
+        border-left-color: #0074bc;
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+    }
+
+
+    /* =========================================================
+       全站文字層級統一
+       注意：數據卡（stat-*）與翻牌卡（flip-*）維持原設定，不覆寫
+       ========================================================= */
+
+    /* 1. 章節標題：Part 1–4 主標 */
+    .reading h2,
+    .workplace > .reading h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.35;
+    }
+
+    /* Part 4 桌機維持單行優先 */
+    .workplace > .reading {
+      width: min(1100px, calc(100% - 40px));
+      max-width: 1100px;
+    }
+
+    .workplace > .reading h2 {
+      max-width: none;
+      white-space: nowrap;
+      color: #fff;
+    }
+
+    /* 2. 人物故事標題 */
+    .intro-card-text h3,
+    .zhang-card .intro-card-text h3,
+    .intro-card-single .intro-card-text h3 {
+      font-size: clamp(1.4rem, 2.6vw, 1.7rem);
+      line-height: 1.45;
+    }
+
+    /* 3. 一般類型／內容卡標題
+       不包含 stat 與 flip */
+    .type-heading,
+    .workplace-cols p b {
+      font-size: 1.25rem;
+      line-height: 1.45;
+    }
+
+    /* Part 4 卡片小標維持置中與大標字型 */
+    .workplace-cols p b {
+      width: 100%;
+      margin: 0 !important;
+      text-align: center;
+      font-family: "Noto Sans TC",
+                   "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      font-weight: 900;
+    }
+
+    /* 4. 導讀／引言 */
+    .reading .lead,
+    .intro-card blockquote,
+    .intro-card .quote,
+    .intro-card .intro-quote {
+      font-size: 1.12rem;
+      line-height: 1.75;
+    }
+
+    /* 5. 一般正文
+       明確排除數據卡與翻牌卡 */
+    .intro-card-text p,
+    .story p,
+    .type-block p,
+    .workplace-cols p,
+    .workplace-cols .lead,
+    .closing-statement p {
+      font-size: 1.04rem;
+      line-height: 1.8;
+    }
+
+    /* 6. 結尾觀點句：比章節標低一級 */
+    .closing-statement h3 {
+      width: 100%;
+      max-width: none;
+      color: var(--lime);
+      font-size: clamp(1.4rem, 2.6vw, 1.7rem);
+      line-height: 1.5;
+      font-weight: 900;
+    }
+
+    /* 7. 輔助資訊 */
+    .part-label,
+    .story-label,
+    .source,
+    .stat-note {
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    /* 手機：章節標可自然換行 */
+    @media (max-width: 760px) {
+      .workplace > .reading h2 {
+        white-space: normal;
+      }
+
+      .reading h2,
+      .workplace > .reading h2 {
+        font-size: clamp(1.9rem, 8vw, 2.45rem);
+      }
+
+      .intro-card-text h3,
+      .zhang-card .intro-card-text h3,
+      .intro-card-single .intro-card-text h3,
+      .closing-statement h3 {
+        font-size: clamp(1.35rem, 6vw, 1.6rem);
+      }
+    }
+
+
+    /* =========================================================
+       文字層級第二版：拉開視覺階差
+       stat-* 與 flip-* 不覆寫
+       ========================================================= */
+
+    /* 人物故事標題：明顯高於一般卡片標題 */
+    .intro-card-text h3,
+    .zhang-card .intro-card-text h3,
+    .intro-card-single .intro-card-text h3 {
+      font-size: clamp(1.6rem, 2.9vw, 1.85rem);
+      line-height: 1.55;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 24px;
+    }
+
+    /* 人物標題螢光筆標記 */
+    .intro-card-text h3 .hl-mark {
+      background: linear-gradient(transparent 52%, #d1ff4f 52%);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      padding: 0 2px;
+    }
+
+    /* 一般內容卡標題 */
+    .type-heading,
+    .workplace-cols p b {
+      font-size: 1.35rem;
+      line-height: 1.45;
+    }
+
+    /* 導讀／引言：比正文有感放大 */
+    .reading .lead,
+    .intro-card blockquote,
+    .intro-card .quote,
+    .intro-card .intro-quote {
+      font-size: 1.18rem;
+      line-height: 1.75;
+    }
+
+    /* 一般正文：統一為 Part 3 卡片背面內文字級 */
+    .intro-card-text p,
+    .story p,
+    .type-block p,
+    .workplace-cols p,
+    .workplace-cols .lead,
+    .closing-statement p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+
+    /* 各 part 前言與人物卡內文：字距稍微開一點 */
+    .reading .lead,
+    .intro-card-text p {
+      letter-spacing: 0.04em;
+    }
+
+    /* Part 4 最終觀點：獨立層級，介於章節標與人物標之間 */
+    .closing-statement h3 {
+      font-size: clamp(1.75rem, 3.1vw, 2rem);
+      line-height: 1.45;
+      color: var(--lime);
+    }
+
+    @media (max-width: 760px) {
+      .intro-card-text h3,
+      .zhang-card .intro-card-text h3,
+      .intro-card-single .intro-card-text h3 {
+        font-size: clamp(1.5rem, 6.4vw, 1.72rem);
+      }
+
+      .type-heading,
+      .workplace-cols p b {
+        font-size: 1.25rem;
+      }
+
+      .reading .lead,
+      .intro-card blockquote,
+      .intro-card .quote,
+      .intro-card .intro-quote {
+        font-size: 1.1rem;
+      }
+
+      .closing-statement h3 {
+        font-size: clamp(1.6rem, 7vw, 1.85rem);
+      }
+    }
+
+
+    /* 人物故事標題降一級，與最終結論拉開層級 */
+    .intro-card-text h3,
+    .zhang-card .intro-card-text h3,
+    .intro-card-single .intro-card-text h3 {
+      font-size: clamp(1.4rem, 2.5vw, 1.62rem);
+      line-height: 1.3;
+    }
+
+    @media (max-width: 760px) {
+      .intro-card-text h3,
+      .zhang-card .intro-card-text h3,
+      .intro-card-single .intro-card-text h3 {
+        font-size: clamp(1.35rem, 5.8vw, 1.52rem);
+      }
+    }
+
+
+    /* ===== Part 4 配色微調 ===== */
+
+    /* Part 4 底色改為與前言相同的深灰 */
+    .workplace {
+      background: #252525;
+    }
+
+    /* 兩張白卡內文：字級不動，只改為人物內文相同的黑色 */
+    .workplace-cols p,
+    .workplace-cols .lead {
+      color: #000;
+    }
+
+
+    /* ===== 手機版引言線與阿國標題修正 ===== */
+    @media (max-width: 620px) {
+
+      /* 張家銘引言：避免 border 與偽元素同時出現造成雙線 */
+      .zhang-card blockquote::before,
+      .zhang-card .quote::before,
+      .zhang-card .intro-quote::before {
+        content: none !important;
+        display: none !important;
+      }
+
+      .zhang-card blockquote,
+      .zhang-card .quote,
+      .zhang-card .intro-quote {
+        border-left: 5px solid #0074bc !important;
+      }
+
+      /* 阿國標題手機版齊左，桌機設定不變 */
+      .intro-card-single.person-card .intro-card-text h3 {
+        text-align: left !important;
+      }
+    }
+
+
+    /* 張家銘引言：桌機版直線與文字內容同高，不向上下凸出 */
+    @media (min-width: 621px) {
+      .zhang-card blockquote,
+      .zhang-card .quote,
+      .zhang-card .intro-quote {
+        border-left: none !important;
+        position: relative;
+      }
+
+      .zhang-card blockquote::before,
+      .zhang-card .quote::before,
+      .zhang-card .intro-quote::before {
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0.18em;
+        bottom: 0.18em;
+        width: 5px;
+        height: auto;
+        background: #0074bc;
+      }
+    }
+
+
+    /* ===== Part 2 分類標題：置中、加大並與前言拉開 ===== */
+    .type-heading {
+      position: static;
+      z-index: auto;
+      display: block;
+      width: auto;
+      max-width: none;
+      margin: 46px 0 20px;
+      padding: 0;
+      background: transparent;
+      color: #fff;
+      border-radius: 0;
+      box-shadow: none;
+      text-align: center;
+      font-size: 1.55rem;
+      line-height: 1.4;
+      font-weight: 900;
+    }
+
+    @media (max-width: 620px) {
+      .type-heading {
+        max-width: none;
+        margin: 38px 0 18px;
+        padding: 0;
+        border-radius: 0;
+        font-size: 1.3rem;
+      }
+    }
+
+
+    /* Part 2 分類標題：再拉開與前言的距離 */
+    .type-heading {
+      margin-top: 72px;
+    }
+
+    @media (max-width: 620px) {
+      .type-heading {
+        margin-top: 54px;
+      }
+    }
+
+
+    /* Part 2 三類型內容正文放大
+       包含：開頭說明、常見困難、可能優勢的文字
+       不影響 badge 與最後引言 */
+    .type-content .tab-content > p:not(.type-quote) {
+      font-size: 1.08rem;
+      line-height: 1.75;
+    }
+
+    @media (max-width: 620px) {
+      .type-content .tab-content > p:not(.type-quote) {
+        font-size: 1.05rem;
+        line-height: 1.75;
+      }
+    }
+
+
+    /* Part 2 badge：更扁，文字跟隨分類色 */
+    .type-content .badge {
+      padding: 3px 14px 4px;
+      line-height: 1.35;
+      font-size: 0.85rem;
+      margin-top: 16px;
+      margin-bottom: 7px;
+      background: var(--ink);
+    }
+
+    #asd .badge {
+      color: #fdd22b;
+    }
+
+    #adhd .badge {
+      color: #fdd22b;
+    }
+
+    #dyslexia .badge {
+      color: #90cdff;
+    }
+
+
+    /* ===== Part 2 分類底色調整 ===== */
+
+    /* ASD：改成原 ADHD 的黃色 */
+    #asd,
+    .tab-content[data-type="asd"] {
+      background: #fdd22b;
+    }
+
+    /* ADHD：改成前言深灰底色 */
+    #adhd,
+    .tab-content[data-type="adhd"] {
+      background: #252525;
+      color: #fff;
+    }
+
+    /* ADHD 深灰底上的內文改白色，確保可讀性 */
+    #adhd h3,
+    #adhd p,
+    .tab-content[data-type="adhd"] h3,
+    .tab-content[data-type="adhd"] p {
+      color: #fff;
+    }
+
+    /* badge 文字顏色同步新的分類底色 */
+    #asd .badge {
+      color: #fdd22b;
+    }
+
+    #adhd .badge {
+      color: #252525;
+    }
+
+
+    /* ===== Part 2 整張 type-card 底色修正 ===== */
+
+    /* ASD：整個內容區改成 ADHD 黃 */
+    .type-card.bg-asd {
+      background: #fdd22b !important;
+      color: #000;
+    }
+
+    .type-card.bg-asd h3,
+    .type-card.bg-asd p {
+      color: #000;
+    }
+
+    /* ADHD：整個內容區改成 Part 1 的米灰底 */
+    .type-card.bg-adhd {
+      background: #f6f5f3 !important;
+      color: #000;
+    }
+
+    .type-card.bg-adhd h3,
+    .type-card.bg-adhd p {
+      color: #000;
+    }
+
+    /* 移除前一版可能套在內層內容上的獨立背景 */
+    #asd,
+    #adhd,
+    .tab-content[data-type="asd"],
+    .tab-content[data-type="adhd"] {
+      background: transparent !important;
+    }
+
+    /* badge 文字色跟整張分類底色呼應 */
+    .type-card.bg-asd .badge {
+      color: #fdd22b;
+    }
+
+    .type-card.bg-adhd .badge {
+      color: #f6f5f3;
+    }
+
+
+    /* ===== Part 2 上方 Tab 顏色同步內容區 ===== */
+
+    /* ASD：黃色 */
+    .type-tabs [data-tab="asd"],
+    .type-tabs button[data-target="asd"],
+    .tab-btn[data-tab="asd"] {
+      background: #fdd22b !important;
+      color: #000 !important;
+    }
+
+    /* ADHD：Part 1 米灰 */
+    .type-tabs [data-tab="adhd"],
+    .type-tabs button[data-target="adhd"],
+    .tab-btn[data-tab="adhd"] {
+      background: #f6f5f3 !important;
+      color: #000 !important;
+    }
+
+
+    /* ===== ADHD 內文黑色 ===== */
+    .type-card.bg-adhd,
+    .type-card.bg-adhd h3,
+    .type-card.bg-adhd p,
+    #adhd,
+    #adhd h3,
+    #adhd p,
+    .tab-content[data-type="adhd"],
+    .tab-content[data-type="adhd"] h3,
+    .tab-content[data-type="adhd"] p {
+      color: #000 !important;
+    }
+
+    /* ===== 標籤列最外側上方圓角 ===== */
+    .type-tabs > :first-child,
+    .type-tabs .tab-btn:first-child {
+      border-top-left-radius: 18px;
+    }
+
+    .type-tabs > :last-child,
+    .type-tabs .tab-btn:last-child {
+      border-top-right-radius: 18px;
+    }
+
+
+    /* ===== Tab 圓角依截圖調整 =====
+       只有整組最外側的左上、右上角有明顯大圓角 */
+    .type-tabs {
+      border-radius: 14px 14px 0 0;
+      overflow: hidden;
+    }
+
+    .type-tabs > *,
+    .type-tabs .tab-btn {
+      border-radius: 0 !important;
+    }
+
+    .type-tabs > :first-child,
+    .type-tabs .tab-btn:first-child {
+      border-top-left-radius: 20px !important;
+    }
+
+    .type-tabs > :last-child,
+    .type-tabs .tab-btn:last-child {
+      border-top-right-radius: 20px !important;
+    }
+
+
+    /* ===== Tab 圓角修正：依截圖，每一個標籤各自有左右上圓角 ===== */
+    .type-tabs {
+      border-radius: 0 !important;
+      overflow: visible !important;
+    }
+
+    .type-tabs > *,
+    .type-tabs .tab-btn {
+      border-radius: 14px 14px 0 0 !important;
+    }
+
+
+    /* ===== Tab 圓角真正套用到目前 HTML 結構 ===== */
+    .tabs.segmented {
+      overflow: visible !important;
+      border-radius: 0 !important;
+    }
+
+    .tabs.segmented .tab-btn {
+      border-radius: 14px 14px 0 0 !important;
+      overflow: hidden;
+    }
+
+
+    /* ADHD badge：文字色與 Part 1 米灰底一致 */
+    .type-card.bg-adhd .badge,
+    #adhd .badge,
+    .tab-content[data-type="adhd"] .badge {
+      color: #f6f5f3 !important;
+    }
+
+
+    /* ===== 米灰底色統一 ===== */
+
+    /* 「ASD、ADHD、讀寫障礙，差在哪裡？」所在區塊 */
+    .type-section,
+    .types-section {
+      background: #f6f5f3 !important;
+    }
+
+    /* 張家銘所在區塊 */
+    .zhang-section,
+    .person-section.zhang-section,
+    .zhang-story-section {
+      background: #f6f5f3 !important;
+    }
+
+
+    /* ===== 修正指定元素：不是整個 section ===== */
+
+    /* 分類小標題文字改成米灰 */
+    .type-heading {
+      color: #f6f5f3 !important;
+    }
+
+    /* 張家銘人物卡本體改成米灰底 */
+    .zhang-card {
+      background: #f6f5f3 !important;
+    }
+
+
+    /* ===== 移除每個 Part 最上方的 Part 標籤 ===== */
+    .part-label {
+      display: none !important;
+    }
+
+
+    /* ===== 康健 Header ===== */
+    #ch-header,
+    #ch-header div,
+    #ch-header span,
+    #ch-header h1,
+    #ch-header p,
+    #ch-header a,
+    #ch-header ol,
+    #ch-header ul,
+    #ch-header li {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: 100%;
+      font: inherit;
+      vertical-align: baseline;
+      box-sizing: border-box;
+    }
+
+    #ch-header a {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: 100%;
+      font: inherit;
+      vertical-align: baseline;
+      display: flex;
+    }
+
+    #ch-header #ch-container {
+      width: 100%;
+      padding-right: 15px;
+      padding-left: 15px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    @media (min-width: 768px) {
+      #ch-header #ch-container {
+        max-width: 720px;
+      }
+    }
+
+    @media (min-width: 992px) {
+      #ch-header #ch-container {
+        max-width: 960px;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      #ch-header #ch-container {
+        max-width: 1140px;
+      }
+    }
+
+    #ch-header h1 img {
+      height: 48px;
+    }
+
+    @media (max-width: 768px) {
+      #ch-header h1 img {
+        height: 32px;
+      }
+    }
+
+    #ch-header {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      background-color: transparent;
+      box-shadow: none;
+      z-index: 50;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #ch-header.scrolled {
+      background-color: #fff;
+      -webkit-box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.2);
+      box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      #ch-header {
+        padding: 8px 0;
+      }
+    }
+
+    #ch-header #ch-container {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+    }
+
+    #ch-header ul {
+      display: flex !important;
+      list-style: none;
+    }
+
+    #ch-header ul li a {
+      padding: 23px 12px;
+      display: inline-table;
+      text-decoration: none;
+      color: #222;
+      -webkit-transition: all .5s;
+      transition: all .5s;
+    }
+
+    #ch-header ul li a:hover {
+      color: #094;
+    }
+
+    @media (max-width: 768px) {
+      #ch-header ul li a {
+        font-size: 20px;
+        padding: 15px 20px;
+      }
+    }
+
+    @media (max-width: 568px) {
+      #ch-header ul li a {
+        font-size: 18px;
+      }
+    }
+
+    #ch-header #ch-social-group {
+      display: flex !important;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      #ch-header #ch-social-group {
+        margin-top: 15px;
+      }
+    }
+
+    #ch-header .ch-social {
+      font-size: 40px;
+    }
+
+    #ch-header .ch-social a {
+      padding: 0 12px;
+      line-height: 36px;
+      color: #979696;
+    }
+
+    #ch-header .ch-social a:hover {
+      border-bottom: 0;
+      padding: 0 12px;
+    }
+
+    @media (max-width: 568px) {
+      #ch-header .ch-social a {
+        font-size: 40px;
+        color: #fff;
+      }
+    }
+
+    #ch-header .ch-social i {
+      vertical-align: bottom;
+    }
+
+    #ch-header #ch-button-toggle {
+      display: none;
+      position: relative;
+      width: 40px;
+      height: 40px;
+      z-index: 10000;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      #ch-header #ch-button-toggle {
+        display: block;
+      }
+    }
+
+    #ch-header #ch-button-toggle span {
+      display: block;
+      position: absolute;
+      width: 30px;
+      height: 2px;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translateX(-50%);
+      transform: translateX(-50%);
+      background-color: #000;
+    }
+
+    #ch-header #ch-button-toggle span::after,
+    #ch-header #ch-button-toggle span::before {
+      -webkit-transition: all .5s;
+      transition: all .5s;
+      position: absolute;
+      content: '';
+      display: block;
+      width: 100%;
+      top: 50%;
+      height: 2px;
+      background-color: #000;
+    }
+
+    #ch-header #ch-button-toggle span::before {
+      top: -8px;
+    }
+
+    #ch-header #ch-button-toggle span::after {
+      bottom: -8px;
+      top: auto;
+    }
+
+    #ch-header #ch-button-toggle.active span {
+      background-color: transparent;
+    }
+
+    #ch-header #ch-button-toggle.active span::after,
+    #ch-header #ch-button-toggle.active span::before {
+      top: 0;
+    }
+
+    #ch-header #ch-button-toggle.active span::before {
+      -webkit-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+
+    @media (max-width: 768px) {
+      #ch-header #ch-button-toggle.active span::before {
+        background-color: #000;
+      }
+    }
+
+    #ch-header #ch-button-toggle.active span::after {
+      -webkit-transform: rotate(-45deg);
+      transform: rotate(-45deg);
+    }
+
+    @media (max-width: 768px) {
+      #ch-header #ch-button-toggle.active span::after {
+        background-color: #000;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #ch-header ul {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 0px;
+        background-color: #fff;
+        -webkit-transition: all 0.5s;
+        transition: all 0.5s;
+        overflow: hidden;
+        z-index: 120;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        opacity: 0;
+      }
+
+      #ch-header ul.opening {
+        height: 100vh;
+        width: 100%;
+        opacity: 1;
+        visibility: visible;
+        background-color: #fff;
+      }
+
+      #ch-header ul li {
+        width: 100vw;
+        text-align: center;
+      }
+    }
+
+
+    /* ===== 製作群 + 社群追蹤區 ===== */
+    .fatty-footer { width: 100%; background: var(--paper); padding: 24px 0 40px; }
+    .fatty-footer__inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; text-align: center; }
+    .fatty-footer__credits { margin-bottom: 40px; }
+    .fatty-footer__credit-line { margin: 0 0 6px; color: #7a746a; font-size: 0.95rem; line-height: 1.6; letter-spacing: 0.03em; }
+    .fatty-footer__credit-line:last-child { margin-bottom: 0; }
+    .fatty-footer__social-title { margin: 0 0 40px; color: var(--ink); font-size: 28px; font-weight: 900; letter-spacing: 0.06em; }
+    .fatty-footer__social-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px 40px; }
+    /* 蓋掉既有 footer ul li 的分隔線與邊距（本區是 <footer> 會繼承到那組樣式） */
+    .fatty-footer__social-list li { border: none; margin: 0; padding: 0; font-size: inherit; line-height: normal; }
+    .fatty-footer__social-link { display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; }
+    .fatty-footer__icon { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease, filter 0.2s ease; }
+    .fatty-footer__icon svg { width: 34px; height: 34px; }
+    .fatty-footer__social-link:hover .fatty-footer__icon { transform: translateY(-3px); filter: brightness(1.06); }
+    .fatty-footer__label { color: #4a4741; font-size: 0.92rem; font-weight: 500; letter-spacing: 0.04em; }
+    /* 各社群品牌色 */
+    .fatty-footer__icon--line { background: #06C755; }
+    .fatty-footer__icon--fb { background: #1877F2; }
+    .fatty-footer__icon--ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); }
+    .fatty-footer__icon--yt { background: #FF0000; }
+    .fatty-footer__icon--podcast { background: #1d9b96; }
+    .fatty-footer__icon--newsletter { background: #2f9e51; }
+    @media (max-width: 620px) {
+      .fatty-footer { padding: 48px 0 32px; }
+      /* 社群 icon 一排 3 顆、上下對齊成網格 */
+      .fatty-footer__social-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px 6px; justify-items: center; }
+      .fatty-footer__social-link { align-self: start; }
+      .fatty-footer__icon { width: 56px; height: 56px; }
+      .fatty-footer__label { font-size: 0.8rem; letter-spacing: 0.02em; }
+      /* 製作群維持單行、不換行掉下來 */
+      .fatty-footer__credit-line { font-size: 13px; white-space: nowrap; letter-spacing: 0.01em; }
+      /* 「追蹤我們…」也維持單行 */
+      .fatty-footer__social-title { font-size: 24px; white-space: nowrap; }
+    }
+
+    /* ===== 康健 Footer ===== */
+    footer {
+      width: 100%;
+      padding: 30px 0;
+      color: #373737;
+      background: var(--paper); /* 與延伸閱讀（頁面底色）一致 */
+    }
+
+    footer a {
+      transition: .3s;
+      text-decoration: none;
+    }
+
+    footer ul {
+      list-style-type: none;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+    }
+
+    footer ul li {
+      font-size: 15px;
+      line-height: 15px;
+      border-right: 1px solid #373737;
+      padding: 0 10px 0 0;
+      margin: 0 10px 10px 0;
+    }
+
+    footer ul li:last-child {
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    footer ul li a {
+      color: #373737;
+      line-height: 15px;
+    }
+
+    footer ul:last-child {
+      margin: 0;
+    }
+
+    footer p {
+      color: #373737;
+      font-size: 14px;
+      line-height: 24px;
+      font-weight: 300;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+      footer ul {
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+      }
+
+      footer ul li {
+        padding: 0 5px 0 0;
+        margin: 0 5px 10px 0;
+      }
+    }
+
+
+.workplace{background:#0074bc;}
+.workplace-cols p b{text-align:center;display:block;margin-bottom:22px;}
+
+.zhang-card .quote::before{width:10px;}
+.zhang-card .intro-card-photo img{border-radius:6px;}
+.zhang-card .intro-card-photo{height:92%;}
+
+/* 將淺藍色引號移至抽言（文字）的正上方，並與文字齊左（保留線條的圓角） */
+.zhang-card .quote::after {
+    top: -40px !important;  /* 向上移動至文字上方 */
+    left: 38px !important;  /* 與文字齊左對齊 */
+}
+
+/* 1. 撐開上方空間，容納引號 */
+.zhang-card .quote {
+    padding-top: 56px !important; 
+}
+
+/* 2. 引號位置：對齊線條頂端並與文字齊左 */
+.zhang-card .quote::after {
+    top: 6px !important;    /* 設定頂部起始點 */
+    left: 38px !important; 
+    font-weight: normal !important; /* 👈 加上這行，解除引號的粗體封印 */
+}
+
+/* 3. 藍色線條：上方與引號齊平、下方與文字齊底 */
+.zhang-card .quote::before {
+    top: 6px !important;     /* 【上面齊高】與引號的 top 數值保持一致 */
+    bottom: 24px !important; /* 【下面齊底】扣除底部 24px 的留白，讓線條剛好停在文字下緣 */
+    height: auto !important; /* 必須加上這行，取消原本的 100% 高度 */
+}
+
+/* ==========================================
+   修正張家銘卡片 手機版排版與抽言大小
+   ========================================== */
+@media (max-width: 760px) {
+    /* 1. 恢復單欄佈局，不再擠在一起 */
+    .zhang-card {
+        grid-template-columns: 1fr !important;
+        row-gap: 28px !important;
+    }
+    
+    /* 2. 強制把圖片排到最上面 */
+    .zhang-card .intro-card-photo {
+        order: -1 !important;
+        height: auto !important;
+    }
+
+    /* 3. 放大抽言字體，讓它有重點感 */
+    .zhang-card .quote {
+        font-size: 1.35rem !important; /* 加大字級 */
+        line-height: 1.6 !important;
+        padding-top: 48px !important;  /* 稍微縮小手機版的上方留白 */
+        padding-left: 24px !important; /* 手機版左側內縮一點，適應小螢幕 */
+    }
+
+    /* 4. 同步調整手機版的引號大小與對齊位置 */
+    .zhang-card .quote::after {
+        top: 2px !important;
+        left: 24px !important;      /* 跟 padding-left 齊左 */
+        font-size: 60px !important; /* 引號稍微等比例縮小 */
+    }
+}
+
+/* ==========================================
+   前言與導讀文字：對齊與排版修正
+   ========================================== */
+
+/* 1. 大前言（不分裝置）強制齊左 */
+.intro-text, 
+.intro-text p {
+    text-align: left !important;
+}
+
+/* 2. 桌機版 (761px 以上)：Part 3 的前言置中 */
+@media (min-width: 761px) {
+    /* 利用 nth-of-type(3) 精準定位 main 裡面的第三個 section (即 Part 3) */
+    main section:nth-of-type(3) .lead {
+        text-align: center !important;
+    }
+}
+
+/* 3. 手機版 (760px 以下)：所有的前言 (.lead) 強制齊左 */
+@media (max-width: 760px) {
+    .lead {
+        text-align: left !important;
+    }
+}
+
+/* ==========================================
+   全站段落左右對齊設定
+   ========================================== */
+
+/* 鎖定所有在閱讀區域內的段落，強制進行左右對齊 */
+.reading p, 
+.intro-text p, 
+.intro-card-text p, 
+.story p, 
+.type-block p, 
+.workplace-cols p, 
+.closing-statement p {
+    text-align: justify !important;
+    text-justify: inter-ideograph !important; /* 優化中文排版間距 */
+}
+
+/* 確保引言區塊 (lead) 也一併對齊 */
+.lead {
+    text-align: justify !important;
+    text-justify: inter-ideograph !important;
+}
+
+/* ==========================================
+   Part 4 最終色調優化
+   ========================================== */
+
+/* 1. 將 Part 4 標題改為螢光綠 */
+.workplace > .reading h2 {
+    color: var(--lime) !important;
+}
+
+/* 2. 將最後的觀點長句改為白色 */
+.closing-statement h3 {
+    color: #ffffff !important;
+}
+
+/* 3. 補充：確保觀點敘述段落也維持良好的白色對比 */
+.closing-statement p {
+    color: rgba(255,255,255,0.85) !important;
+}
+
+/* 4. closing-statement 寬度改為填滿 .wrap（＝901px，與 Part 1 內容同寬） */
+.closing-statement {
+    max-width: 1040px;
+    width: 100%;
+}
+
+/* 5. 桌機版：結語段落改置中（覆寫上方 justify !important） */
+@media (min-width: 761px) {
+    .closing-statement p {
+        text-align: center !important;
+    }
+}
+
+/* ==========================================
+   全站按鈕樣式優化
+   ========================================== */
+
+/* 1. 調整所有按鈕的字級、字距與高度 */
+.read-more {
+    height: 34px !important;       /* 按鈕高度再縮小 */
+    line-height: 34px !important;  /* 讓文字垂直置中 */
+    padding: 0 20px !important;    /* 左右內距縮小 */
+    font-size: 0.85rem !important; /* 文字再小一點 */
+    font-weight: 500 !important;   /* 字變細一點，從 800 調降至 500 */
+    letter-spacing: 0.12em !important; /* 字間距略收，配合較窄按鈕 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 2. 將最後 Part 4 的按鈕改為黑色背景 */
+.workplace .read-more {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* 3. Hover 時的變色微調 */
+.workplace .read-more:hover {
+    background: #555555 !important;
+}
+
+/* 確保箭頭圖示位置對齊 */
+.read-more-icon {
+    bottom: auto !important; /* 修正箭頭在高度調整後的垂直位置 */
+}
+
+/* 讓按鈕內的圖示下緣溢出按鈕邊緣 */
+.read-more-icon {
+    position: absolute !important;
+    right: 15px !important;    /* 可以微調右側距離 */
+    bottom: -18px !important;  /* 負值越大，手指往下突出的效果越明顯 */
+    width: auto !important;
+    height: 48px !important;   /* 配合按鈕高度調整 */
+    display: block !important;
+    pointer-events: none;      /* 確保不影響按鈕點擊 */
+}
+
+/* 修正小手位置與大小，避免壓到文字 */
+.read-more-icon {
+    position: absolute !important;
+    right: -12px !important;  /* 往右移出按鈕邊緣，避免壓到文字 */
+    bottom: -10px !important; /* 小手再往下移一點 */
+    width: 32px !important;   /* 強制縮小手的寬度 */
+    height: auto !important;  /* 高度自動等比例縮放 */
+    display: block !important;
+    pointer-events: none;
+}
+
+/* ==========================================
+   統一大前言與各 Part 前言的寬度
+   ========================================== */
+
+/* 將大前言的寬度限制調整為與 .reading 一致 */
+.intro-text {
+    width: min(820px, calc(100% - 40px)) !important;
+    max-width: 820px !important;
+    margin: 0 auto !important; /* 確保水平置中 */
+}
+
+/* 確保 Part 3 桌機版前言若有特殊設定，也能與 820px 對齊 */
+.workplace > .reading {
+    width: min(820px, calc(100% - 40px)) !important;
+    max-width: 820px !important;
+}
+
+/* ==========================================
+   全站人物卡標題統一優化 (移除螢光綠，統一深藍)
+   ========================================== */
+
+/* 鎖定所有人物卡標題 */
+.intro-card-text h3 .hl-mark,
+.zhang-card .intro-card-text h3 .hl-mark,
+.intro-card-single .intro-card-text h3 .hl-mark {
+    background: transparent !important; /* 移除螢光綠背景 */
+    color: #000 !important;           /* 統一為專業深藍色 */
+    font-weight: 600 !important;         /* 標題細一點 */
+}
+
+/* 確保這些標題在深色背景或不同情境下也能維持一致性 */
+.intro-card-text h3 {
+    color: #000 !important;
+}
+
+/* ==========================================
+   各 Part 大標題字距優化
+   ========================================== */
+
+/* 針對所有 Part 的大標題 (h2) 增加字距 */
+.reading h2,
+.workplace > .reading h2,
+.type-heading {
+    letter-spacing: 0.06em !important; /* 增加字間距，避免文字堆疊感 */
+    line-height: 1.4 !important;      /* 配合字距微調行高，讓閱讀更順暢 */
+}
+
+/* 人物卡 h3 標題字距與各 Part 大標一致（0.06em） */
+.intro-card-text h3 {
+    letter-spacing: 0.06em !important;
+}
+
+/* ==========================================
+   僅針對桌機版 Part 1 大標題進行微調
+   ========================================== */
+
+@media (min-width: 761px) {
+    /* 鎖定主內容區塊的第一個 section 中的 h2 */
+    main section:nth-of-type(1) .reading h2 {
+        white-space: nowrap !important;   /* 強制不換行 */
+        letter-spacing: 0.03em !important; /* 微調字距 */
+    }
+}
+
+/* 確保其他 Part 的標題恢復正常的自動換行，避免排版崩壞 */
+.reading h2,
+.workplace > .reading h2,
+.type-heading {
+    white-space: normal !important; 
+}
+
+
+/* ==========================================
+   手機版：主視覺與大前言排版優化
+   ========================================== */
+@media (max-width: 760px) {
+    /* 1. 主視覺標題：強制一行且加粗 */
+    .hero h1 {
+        white-space: nowrap !important; /* 強制不換行 */
+        font-weight: 900 !important;   /* 強制加粗 */
+        font-size: 1.8rem !important;  /* 微調字級，確保能塞進一行 */
+    }
+
+    /* 2. 大前言：縮小字體、緊縮行距 */
+    .intro-text {
+        margin-top: 40px !important;   /* 增加與上方主視覺的距離，解決壓圖問題 */
+        padding-top: 20px !important;
+    }
+
+    .intro-text p {
+        font-size: 1.1rem !important;  /* 稍微縮小字級 */
+        line-height: 1.5 !important;   /* 緊縮行距，讓閱讀節奏更緊湊 */
+        margin-bottom: 1.5em !important;
+    }
+}
+
+/* ==========================================
+   統一前言字級與加粗樣式
+   ========================================== */
+
+/* 確保大前言 (.intro-text) 與其他前言 (.lead) 字級一致 */
+.intro-text p, 
+.lead {
+    font-size: 1.1rem !important;      /* 統一字體大小 */
+    line-height: 1.6 !important;       /* 統一舒適的行距 */
+    font-weight: 400 !important;       /* 基礎字重 */
+}
+
+/* 僅針對大前言進行加粗強調 */
+.intro-text p {
+    font-weight: 600 !important;       /* 透過加粗提升大前言的層級 */
+}
+
+/* 手機版微調：確保在小螢幕上字級不會過大 */
+@media (max-width: 760px) {
+    .intro-text p, 
+    .lead {
+        font-size: 1rem !important;    /* 手機版適度縮小，提升閱讀舒適度 */
+    }
+}
+
+/* ==========================================
+   手術級修正：手機版主視覺與標題排版
+   ========================================== */
+@media (max-width: 760px) {
+    /* 1. 確保主視覺標題維持單行，並微調字級 */
+    .hero-copy h1 {
+        white-space: nowrap !important;
+        font-size: 2.2rem !important; /* 強制縮小字級以適應手機螢幕寬度 */
+        letter-spacing: 0 !important;
+    }
+
+    /* 2. 增加主視覺區塊的底部間距，避免文字「壓到圖」 */
+    .hero {
+        padding-bottom: 80px !important; 
+    }
+
+    /* 3. 大前言：微調字體與行距，讓它不再那麼「空」 */
+    .intro-text p {
+        font-size: 1.1rem !important;
+        line-height: 1.6 !important;
+        margin-top: 0 !important;
+    }
+}
+
+/* ==========================================
+   手機版主視覺圖片切換
+   ========================================== */
+
+/* 預設：桌機圖顯示，手機圖隱藏 */
+.desktop-only { display: block !important; }
+.mobile-only { display: none !important; }
+
+@media (max-width: 760px) {
+    /* 手機版：桌機圖隱藏，手機圖顯示 */
+    .desktop-only { display: none !important; }
+    .mobile-only { display: block !important; }
+}
+
+/* 確保兩張圖都繼承原本的 hero-bg 設定 */
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    z-index: 1;
+}
+
+
+/* ==========================================
+   手機版閱讀體驗優化：統一為人物卡內文比例
+   ========================================== */
+@media (max-width: 760px) {
+    .intro-text p, 
+    .lead {
+        font-size: 1.1rem !important; 
+        line-height: 1.8 !important;
+        letter-spacing: 0.02em !important; /* 增加一點點字距，閱讀感會更像印刷書 */
+    }
+}
+
+/* ==========================================
+   手術級修正：Part 4 卡片標題（縮小字級、拉大字距）
+   ========================================== */
+.workplace-cols p b {
+    font-size: 1.05rem !important;      /* 將字級調整得更輕盈 */
+    letter-spacing: 0.1em !important;   /* 拉大字距，營造呼吸感 */
+    margin-bottom: 16px !important;     /* 微調下方間距，讓標題與內文更有層次 */
+}
+
+/* ==========================================
+   手術級修正：縮小人物卡折角尺寸
+   ========================================== */
+.person-card {
+    --fold-size: 36px !important; /* 將原本的 54px 改小為 36px */
+}
+
+/* ==========================================
+   手術級修正：手機版分類圖片上方間距
+   ========================================== */
+@media (max-width: 760px) {
+    .type-visual {
+        padding-top: 10px !important; /* 將原本的 24px 縮小至 10px，拉近距離 */
+    }
+}
+
+/* ==========================================
+   手術級修正：分類卡標題（縮小、置中）
+   ========================================== */
+.type-content h3 {
+    font-size: 1.5rem !important;       /* 將原本的 1.9rem 調小，看起來不那麼壓迫 */
+    text-align: center !important;      /* 強制文字置中 */
+    margin-bottom: 20px !important;     /* 稍微增加下方間距，讓排版更透氣 */
+}
+
+/* ==========================================
+   桌機版微調（僅 min-width: 761px，手機版不受影響）
+   ========================================== */
+@media (min-width: 761px) {
+    /* 0a. 大前言與各 part 前言：置中 */
+    .intro-text,
+    .intro-text p,
+    .reading .lead,
+    .reading p.lead {
+        text-align: center !important;
+    }
+
+    /* 0b. 大前言往下移，與主視覺拉開距離 */
+    .intro {
+        padding-top: 285px !important;
+    }
+
+    /* 0c. 大前言加寬 */
+    .intro-text {
+        width: min(1100px, calc(100% - 40px)) !important;
+        max-width: 1100px !important;
+    }
+
+    /* 0d. Part 1 前言區塊寬度 = 下方人物卡寬度（1040px） */
+    main section:nth-of-type(1) .reading {
+        width: min(1040px, calc(100% - 40px)) !important;
+        max-width: 1040px !important;
+    }
+
+    /* 1. 大前言：字加大、行距開一點 */
+    .intro-text p {
+        font-size: 1.3rem !important;
+        line-height: 1.85 !important;
+    }
+
+    /* 2. Part 2 圖片右側內容大標：加大、齊左 */
+    .type-content h3 {
+        font-size: 1.85rem !important;
+        text-align: left !important;
+    }
+
+    /* 3. 張家銘抽言：與上方文字距離拉近、移除引號、直線調整 */
+    .zhang-card .quote {
+        margin-top: 14px !important;
+        padding-top: 0 !important;      /* 移除為引號預留的上方空間 */
+        padding-bottom: 0 !important;
+        padding-left: 26px !important;  /* 直線與文字間距開一點 */
+    }
+
+    /* 移除引號符號 */
+    .zhang-card .quote::after {
+        display: none !important;
+    }
+
+    /* 直線：與抽言同高、無圓角、細一點 */
+    .zhang-card .quote::before {
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        height: auto !important;
+        width: 5px !important;
+        border-radius: 0 !important;
+    }
+
+    /* 張家銘卡片上下內距對稱縮小（維持上下一致） */
+    .zhang-card {
+        padding-top: 56px !important;
+        padding-bottom: 56px !important;
+    }
+
+    /* 4. 張家銘照片：上緣對齊左欄標題「字面」上緣（+5px 抵銷 line-height 上方留白） */
+    .zhang-card .intro-card-photo {
+        height: 100% !important;
+        align-self: flex-start !important;
+        margin-top: 5px !important;
+    }
+
+    /* 5. Part 4 兩張卡片小標：縮小、字距加開 */
+    .workplace-card-content h3 {
+        font-size: 1.5rem !important;
+        letter-spacing: 0.06em !important;
+    }
+}
+
+/* ==========================================
+   手機版微調（僅 max-width: 760px）
+   ========================================== */
+@media (max-width: 760px) {
+    /* 桌機斷句不套用到手機，讓文字自然流動 */
+    .intro-text p br,
+    .lead br {
+        display: none !important;
+    }
+
+    /* 大前言與 Part 1 靠近一點 */
+    .intro {
+        padding-bottom: 32px !important;
+    }
+
+    /* 主視覺主副標：放大並確保粗體；大標往右移一點 */
+    .hero-copy h1 {
+        font-size: 2.4rem !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.03em !important;
+        transform: translateX(7px) !important;
+        -webkit-text-stroke: 0.6px currentColor;
+    }
+
+    /* 手機版：「入」與「？」之間拉開一點 */
+    .hero-copy h1 .tight-q {
+        margin-left: -0.2em !important;
+    }
+
+    .hero-copy .hero-subtitle {
+        font-size: 1.55rem !important;
+        font-weight: 900 !important;
+        -webkit-text-stroke: 0.4px currentColor;
+    }
+
+    /* 手機版：主視覺左右內距縮小，讓標題圖片可以更大 */
+    .hero {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    /* 手機版：隱藏右側/右上補的小圓點，避免右邊太擠 */
+    .bubbles .bubble.mobile-hide {
+        display: none !important;
+    }
+
+    /* 手機版 Part 2 分類圖：移除固定高度的上下留白，讓圖貼近上緣 */
+    .type-visual {
+        min-height: 0 !important;
+        padding-top: 18px !important;
+    }
+    .type-visual img {
+        height: auto !important;
+    }
+
+    /* 手機版標題圖片：置中、放大 */
+    .hero-title-mobile {
+        width: min(100%, 480px);
+        height: auto;
+        margin: 0 auto;
+    }
+
+    /* 手機版：光點移到文字後面（避免擋到前言，但仍可透出） */
+    .bubbles {
+        display: block !important;
+        z-index: 1 !important;
+    }
+
+    /* 各 part 標題字距收緊 */
+    .reading h2,
+    .workplace > .reading h2 {
+        letter-spacing: 0.02em !important;
+    }
+}
