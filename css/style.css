@@ -1,3 +1,11 @@
+/* 自託管字體子集（只含頁面用到的字），改從同源載入，避免公司網路擋 Google Fonts 導致字體不一致 */
+@font-face { font-family: 'Noto Sans TC'; font-style: normal; font-weight: 400; font-display: swap; src: url('../fonts/noto-sans-tc-400.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans TC'; font-style: normal; font-weight: 500; font-display: swap; src: url('../fonts/noto-sans-tc-500.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans TC'; font-style: normal; font-weight: 700; font-display: swap; src: url('../fonts/noto-sans-tc-700.woff2') format('woff2'); }
+@font-face { font-family: 'Noto Sans TC'; font-style: normal; font-weight: 900; font-display: swap; src: url('../fonts/noto-sans-tc-900.woff2') format('woff2'); }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 750; font-display: swap; src: url('../fonts/montserrat-750.woff2') format('woff2'); }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 900; font-display: swap; src: url('../fonts/montserrat-900.woff2') format('woff2'); }
+
 :root {
       --ink: #202124;
       --muted: #5f6368;
@@ -463,6 +471,10 @@ opacity:.9;
     .part1 .read-more, .part3-blue .read-more, .workplace .read-more { margin-bottom: 56px; }
     /* 阿國卡片內的按鈕：收掉下方大間距（僅留卡片本身 padding） */
     #education .read-more { margin-top: 32px; margin-bottom: 4px; }
+    /* 阿國標題桌機齊左（手機維持置中） */
+    @media (min-width: 761px) {
+      #education .intro-card-text h3 { text-align: left; }
+    }
     @media (max-width: 900px) { .type-card { grid-template-columns: 1fr; } .type-visual { padding: 24px 24px 0 24px; justify-content: center; } .type-content { padding: 30px; } .flip-grid, .stat-grid-3col { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 620px) {
       .wrap, .reading { width: min(100% - 28px, 1040px); }
