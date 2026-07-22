@@ -368,10 +368,9 @@ opacity:.9;
     .flip-image img { width: auto; height: 100%; object-fit: contain; }
     .flip-content { padding: 4px 48px 42px 48px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
     .flip-face-back .flip-content { padding: 16px 48px 16px 48px; display: grid; grid-template-rows: 1fr 1fr; height: 100%; }
-    /* 手機版：縮小翻卡內容左右內距，讓正面標題（如「上課坐不住、扭來扭去」）不會擠掉字到第二行 */
+    /* 手機版：只縮小「正面」內容左右內距，讓正面標題（如「上課坐不住、扭來扭去」）不會擠掉字到第二行；背面維持原內距 */
     @media (max-width: 620px) {
-      .flip-content { padding-left: 22px; padding-right: 22px; }
-      .flip-face-back .flip-content { padding-left: 26px; padding-right: 26px; }
+      .flip-face-front .flip-content { padding-left: 22px; padding-right: 22px; }
     }
     .flip-content p { margin: 0 0 12px; color: #000; font-size: 1.1rem; line-height: 1.6; }
     .flip-content p:last-child { margin-bottom: 0; }
