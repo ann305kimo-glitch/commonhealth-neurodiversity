@@ -6,9 +6,9 @@ const progress = document.querySelector('.progress');
     const brainImg = document.getElementById('brain-visual-img');
     const brainBox = document.getElementById('brain-visual-box');
     const brainImages = {
-      asd: { src: 'images/brain-illustration-asd.png', alt: 'ASD 自閉症光譜示意插畫' },
-      adhd: { src: 'images/brain-illustration-adhd.png', alt: 'ADHD 注意力不足過動症示意插畫' },
-      dyslexia: { src: 'images/brain-illustration-dyslexia.png', alt: '讀寫障礙示意插畫' }
+      asd: { src: 'images/brain-illustration-asd.webp', alt: 'ASD 自閉症光譜示意插畫' },
+      adhd: { src: 'images/brain-illustration-adhd.webp', alt: 'ADHD 注意力不足過動症示意插畫' },
+      dyslexia: { src: 'images/brain-illustration-dyslexia.webp', alt: '讀寫障礙示意插畫' }
     };
     function updateProgress() {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;

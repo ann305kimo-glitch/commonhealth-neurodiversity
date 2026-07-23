@@ -107,6 +107,16 @@
     /* 錨點跳轉時預留固定表頭（76px）高度，目標不被擋住 */
     [id] { scroll-margin-top: 92px; }
 
+    /* ===== 廣告 Banner ===== */
+    /* 寬度對齊延伸閱讀的「卡片區」（3 張卡，不含左右箭頭）：縮排＝內距24+箭頭60+間距8 */
+    .ad-banner { padding: 8px 0 72px; }
+    .ad-banner__link { display: block; max-width: 1180px; margin: 0 auto; padding: 0 92px; }
+    .ad-banner img { display: block; width: 100%; height: auto; border-radius: 8px; }
+    @media (max-width: 620px) {
+      /* 手機版箭頭與內距較小：縮排＝內距12+箭頭40+間距4 */
+      .ad-banner__link { padding: 0 56px; }
+    }
+
     /* ===== 延伸閱讀輪播 ===== */
     .related-reading { padding: 88px 0 96px; background: transparent; }
     .rr-inner { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
