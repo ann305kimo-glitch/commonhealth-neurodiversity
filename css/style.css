@@ -281,8 +281,9 @@
     .stat-plus { font-size: 0.75em; display: inline-block; vertical-align: middle; position: relative; top: -5px; }
     .stat-caption { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 0; letter-spacing: 0.05em; }
     .source, .stat-note { color: #777; font-size: 0.9rem; margin-top: 24px; }
-    /* 註解緊貼其後的資料來源 */
-    .stat-note + .source { margin-top: 4px; }
+    /* 註解緊貼其後的資料來源（收掉「註」的下邊距，讓兩行靠近） */
+    .stat-note:has(+ .source) { margin-bottom: 4px; }
+    .stat-note + .source { margin-top: 2px; }
     .story { padding: clamp(24px, 4vw, 38px); margin: 28px 0; box-shadow: var(--shadow); }
     .story-label { color: var(--teal); font-size: 0.92rem; font-weight: 850; margin-bottom: 8px; }
     .type-heading { margin: 0 0 18px; text-align: center; font-size: clamp(1.3rem, 2.6vw, 1.7rem); color: #fff; }
